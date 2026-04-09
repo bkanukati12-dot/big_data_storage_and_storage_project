@@ -16,7 +16,7 @@
       "displayName": "Total Accidents",
       "queryLines": [
         "SELECT COUNT(*) AS total_accidents\r\n",
-        "FROM traffic_catalog.traffic_schema.accidents_silver"
+        "FROM traffic_catalog.traffic_schema.accidents_by_hour_gold"
       ],
       "catalog": "traffic_catalog",
       "schema": "traffic_schema"
@@ -25,8 +25,8 @@
       "name": "e5c7d573",
       "displayName": "Avg Severity KPI",
       "queryLines": [
-        "SELECT ROUND(AVG(severity),2) AS avg_severity\r\n",
-        "FROM traffic_catalog.traffic_schema.accidents_silver"
+        "SELECT ROUND(AVG(accident_count),2) AS avg_severity\r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_by_hour_gold"
       ],
       "catalog": "traffic_catalog",
       "schema": "traffic_schema"
@@ -50,7 +50,7 @@
         "SELECT violation_type,total_cases\r\n",
         "FROM traffic_catalog.traffic_schema.violation_summary_gold\r\n",
         "ORDER BY total_cases DESC\r\n",
-        "Limit 1\r\n"
+        "\r\n"
       ],
       "catalog": "traffic_catalog",
       "schema": "traffic_schema"
@@ -72,6 +72,7 @@
       "queryLines": [
         "SELECT violation_type, total_cases\r\n",
         "FROM traffic_catalog.traffic_schema.violation_summary_gold\r\n",
+        "WHERE violation_type != 'None'\r\n",
         "order by total_cases desc"
       ],
       "catalog": "traffic_catalog",
@@ -96,37 +97,6 @@
         "FROM traffic_catalog.traffic_schema.road_risk_gold\r\n",
         "ORDER BY avg_severity DESC\r\n",
         "LIMIT 1"
-      ],
-      "catalog": "traffic_catalog",
-      "schema": "traffic_schema"
-    },
-    {
-      "name": "3a41aeb9",
-      "displayName": "Accident Trend by Month and Weather",
-      "queryLines": [
-        "SELECT \r\n",
-        "  CASE month(to_date(a.accident_date))\r\n",
-        "    WHEN 1 THEN 'Jan'\r\n",
-        "    WHEN 2 THEN 'Feb'\r\n",
-        "    WHEN 3 THEN 'Mar'\r\n",
-        "    WHEN 4 THEN 'Apr'\r\n",
-        "    WHEN 5 THEN 'May'\r\n",
-        "    WHEN 6 THEN 'Jun'\r\n",
-        "    WHEN 7 THEN 'Jul'\r\n",
-        "    WHEN 8 THEN 'Aug'\r\n",
-        "    WHEN 9 THEN 'Sep'\r\n",
-        "    WHEN 10 THEN 'Oct'\r\n",
-        "    WHEN 11 THEN 'Nov'\r\n",
-        "    WHEN 12 THEN 'Dec'\r\n",
-        "  END AS month_name,\r\n",
-        "  month(to_date(a.accident_date)) AS month_order,\r\n",
-        "  w.condition,\r\n",
-        "  COUNT(*) AS accident_count\r\n",
-        "FROM traffic_catalog.traffic_schema.accidents_silver a\r\n",
-        "JOIN traffic_catalog.traffic_schema.weather_silver w\r\n",
-        "  ON a.weather_id = w.weather_id\r\n",
-        "GROUP BY month_name, month_order, w.condition\r\n",
-        "ORDER BY month_order"
       ],
       "catalog": "traffic_catalog",
       "schema": "traffic_schema"
@@ -200,11 +170,10 @@
       "name": "f6c10ce6",
       "displayName": "Violation Type Distribution",
       "queryLines": [
-        "SELECT violation_type, COUNT(*) AS accident_count\r\n",
-        "FROM traffic_catalog.traffic_schema.violations_silver\r\n",
+        "SELECT violation_type, total_cases\r\n",
+        "FROM traffic_catalog.traffic_schema.violation_summary_gold\r\n",
         "WHERE violation_type != 'None'\r\n",
-        "GROUP BY violation_type\r\n",
-        "ORDER BY accident_count DESC"
+        "ORDER BY total_cases DESC\r\n"
       ]
     },
     {
@@ -385,6 +354,11 @@
                       "expression": "`violation_type`"
                     }
                   ],
+                  "filters": [
+                    {
+                      "expression": "`violation_type` IN (`violation_type`) OR TRUE"
+                    }
+                  ],
                   "disaggregated": true
                 }
               }
@@ -560,6 +534,9 @@
               "encodings": {
                 "x": {
                   "fieldName": "accident_count",
+                  "axis": {
+                    "hideGrid": true
+                  },
                   "displayName": "Accident Count",
                   "scale": {
                     "type": "quantitative"
@@ -1074,8 +1051,8 @@
                       "expression": "`violation_type`"
                     },
                     {
-                      "name": "accident_count",
-                      "expression": "`accident_count`"
+                      "name": "total_cases",
+                      "expression": "`total_cases`"
                     }
                   ],
                   "disaggregated": false
@@ -1140,13 +1117,24 @@
                     "mappings": [
                       {
                         "value": "Dui",
-                        "color": "#E74C3C"
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 2
+                        }
                       },
                       {
                         "value": "Signal Jump",
                         "color": "#2ECC71"
                       }
-                    ]
+                    ],
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "Signal Jump",
+                        "Dui",
+                        "Speeding"
+                      ]
+                    }
                   }
                 },
                 "label": {
@@ -1154,7 +1142,7 @@
                 },
                 "extra": [
                   {
-                    "fieldName": "accident_count"
+                    "fieldName": "total_cases"
                   }
                 ]
               }
@@ -1193,14 +1181,15 @@
               "version": 3,
               "frame": {
                 "showTitle": true,
-                "title": "Accident by Age Group"
+                "title": "Accidents by Age Group"
               },
               "widgetType": "bar",
               "encodings": {
                 "x": {
                   "fieldName": "total_accidents",
                   "axis": {
-                    "title": "Total Accidents"
+                    "title": "Total Accidents",
+                    "hideGrid": true
                   },
                   "scale": {
                     "type": "quantitative"
