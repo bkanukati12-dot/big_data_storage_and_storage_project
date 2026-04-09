@@ -1,0 +1,1277 @@
+{
+  "datasets": [
+    {
+      "name": "c045c11f",
+      "displayName": "Accident by City",
+      "queryLines": [
+        "SELECT city, total_accidents AS accident_count\r\n",
+        "FROM traffic_catalog.traffic_schema.hotspots_gold\r\n",
+        "ORDER BY accident_count DESC"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "2efb6c55",
+      "displayName": "Total Accidents",
+      "queryLines": [
+        "SELECT COUNT(*) AS total_accidents\r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_silver"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "e5c7d573",
+      "displayName": "Avg Severity KPI",
+      "queryLines": [
+        "SELECT ROUND(AVG(severity),2) AS avg_severity\r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_silver"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "d7dc787b",
+      "displayName": "Top City KPI",
+      "queryLines": [
+        "SELECT city\r\n",
+        "FROM traffic_catalog.traffic_schema.hotspots_gold\r\n",
+        "ORDER BY total_accidents DESC\r\n",
+        "LIMIT 1"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "1e51db6a",
+      "displayName": "Top Violation KPI",
+      "queryLines": [
+        "SELECT violation_type,total_cases\r\n",
+        "FROM traffic_catalog.traffic_schema.violation_summary_gold\r\n",
+        "ORDER BY total_cases DESC\r\n",
+        "Limit 1\r\n"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "84f399c9",
+      "displayName": "Weather Severity",
+      "queryLines": [
+        "SELECT condition, avg_severity\r\n",
+        "FROM traffic_catalog.traffic_schema.weather_impact_gold\r\n",
+        "ORDER BY avg_severity DESC"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "2b50d6be",
+      "displayName": "Violations",
+      "queryLines": [
+        "SELECT violation_type, total_cases\r\n",
+        "FROM traffic_catalog.traffic_schema.violation_summary_gold\r\n",
+        "order by total_cases desc"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "4c1dc828",
+      "displayName": "Time Trend",
+      "queryLines": [
+        "SELECT accident_hour, accident_count     \r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_by_hour_gold\r\n",
+        "order by accident_hour"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "e7915513",
+      "displayName": "Riskiest Road KPI",
+      "queryLines": [
+        "SELECT road_type\r\n",
+        "FROM traffic_catalog.traffic_schema.road_risk_gold\r\n",
+        "ORDER BY avg_severity DESC\r\n",
+        "LIMIT 1"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "3a41aeb9",
+      "displayName": "Accident Trend by Month and Weather",
+      "queryLines": [
+        "SELECT \r\n",
+        "  CASE month(to_date(a.accident_date))\r\n",
+        "    WHEN 1 THEN 'Jan'\r\n",
+        "    WHEN 2 THEN 'Feb'\r\n",
+        "    WHEN 3 THEN 'Mar'\r\n",
+        "    WHEN 4 THEN 'Apr'\r\n",
+        "    WHEN 5 THEN 'May'\r\n",
+        "    WHEN 6 THEN 'Jun'\r\n",
+        "    WHEN 7 THEN 'Jul'\r\n",
+        "    WHEN 8 THEN 'Aug'\r\n",
+        "    WHEN 9 THEN 'Sep'\r\n",
+        "    WHEN 10 THEN 'Oct'\r\n",
+        "    WHEN 11 THEN 'Nov'\r\n",
+        "    WHEN 12 THEN 'Dec'\r\n",
+        "  END AS month_name,\r\n",
+        "  month(to_date(a.accident_date)) AS month_order,\r\n",
+        "  w.condition,\r\n",
+        "  COUNT(*) AS accident_count\r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_silver a\r\n",
+        "JOIN traffic_catalog.traffic_schema.weather_silver w\r\n",
+        "  ON a.weather_id = w.weather_id\r\n",
+        "GROUP BY month_name, month_order, w.condition\r\n",
+        "ORDER BY month_order"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "96147cb7",
+      "displayName": "Peak Hour KPI",
+      "queryLines": [
+        "SELECT \r\n",
+        "  CASE \r\n",
+        "    WHEN accident_hour = 0 THEN '12 AM'\r\n",
+        "    WHEN accident_hour < 12 THEN CONCAT(accident_hour, ' AM')\r\n",
+        "    WHEN accident_hour = 12 THEN '12 PM'\r\n",
+        "    ELSE CONCAT(accident_hour - 12, ' PM')\r\n",
+        "  END AS peak_hour\r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_by_hour_gold\r\n",
+        "ORDER BY accident_count DESC\r\n",
+        "LIMIT 1"
+      ],
+      "catalog": "traffic_catalog",
+      "schema": "traffic_schema"
+    },
+    {
+      "name": "85752d4a",
+      "displayName": "City × Road Type Heatmap",
+      "queryLines": [
+        "SELECT city, road_type, total_accidents as accident_count\r\n",
+        "FROM traffic_catalog.traffic_schema.city_roadtype_gold"
+      ]
+    },
+    {
+      "name": "5ac7ca14",
+      "displayName": "Accidents by City & Road Type",
+      "queryLines": [
+        "SELECT city, road_type, total_accidents as accident_count\r\n",
+        "FROM traffic_catalog.traffic_schema.city_roadtype_gold"
+      ]
+    },
+    {
+      "name": "99cfe64c",
+      "displayName": "Avg Severity by Weather Condition",
+      "queryLines": [
+        "SELECT condition, avg_severity\r\n",
+        "FROM traffic_catalog.traffic_schema.weather_impact_gold\r\n",
+        "ORDER BY avg_severity DESC"
+      ]
+    },
+    {
+      "name": "649e69c0",
+      "displayName": "Accidents by Hour of Day",
+      "queryLines": [
+        "SELECT\r\n",
+        " CASE \r\n",
+        "    WHEN accident_hour = 0 THEN '12 AM'\r\n",
+        "    WHEN accident_hour < 12 THEN CONCAT(accident_hour, ' AM')\r\n",
+        "    WHEN accident_hour = 12 THEN '12 PM'\r\n",
+        "    ELSE CONCAT(accident_hour - 12, ' PM')\r\n",
+        "  END AS accident_hour,\r\n",
+        "  accident_count,\r\n",
+        "  CASE\r\n",
+        "    WHEN accident_count >= 8 THEN 'High Risk'\r\n",
+        "    WHEN accident_count >= 3 THEN 'Medium Risk'\r\n",
+        "    WHEN accident_count <= 2 THEN 'Normal'\r\n",
+        "    ELSE 'Calm'\r\n",
+        "  END AS hour_risk\r\n",
+        "FROM traffic_catalog.traffic_schema.accidents_by_hour_gold\r\n",
+        "ORDER BY accident_hour"
+      ]
+    },
+    {
+      "name": "f6c10ce6",
+      "displayName": "Violation Type Distribution",
+      "queryLines": [
+        "SELECT violation_type, COUNT(*) AS accident_count\r\n",
+        "FROM traffic_catalog.traffic_schema.violations_silver\r\n",
+        "WHERE violation_type != 'None'\r\n",
+        "GROUP BY violation_type\r\n",
+        "ORDER BY accident_count DESC"
+      ]
+    },
+    {
+      "name": "a73d89ea",
+      "displayName": "Accident by Driver Age Group",
+      "queryLines": [
+        "SELECT age_group, total_accidents\r\n",
+        "FROM traffic_catalog.traffic_schema.age_group_risk_gold\r\n",
+        "ORDER BY total_accidents DESC"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "348909c2",
+      "displayName": "Traffic Risk Command Center",
+      "layout": [
+        {
+          "widget": {
+            "name": "54b5dafd",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# <span style=\"text-align:center;display:block\"><span style=\"font-size: 24px;font-family: Times New Roman;\">**🚦 Traffic Risk Command Center**</span><br><span style=\"font-size: 24px;font-family: Times New Roman;\">**Ontario Traffic Accident Risk Intelligence Report — 2025**</span></span>"
+              ],
+              "verticalAlign": "VERTICAL_ALIGN_CENTER"
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "total-accidents",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2efb6c55",
+                  "fields": [
+                    {
+                      "name": "sum(total_accidents)",
+                      "expression": "SUM(`total_accidents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Total Accidents"
+              },
+              "style": {
+                "fontColor": {
+                  "dark": "#E8EDF2"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_accidents)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "avg-severity-kpi",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e5c7d573",
+                  "fields": [
+                    {
+                      "name": "sum(avg_severity)",
+                      "expression": "SUM(`avg_severity`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Avg Severity"
+              },
+              "style": {
+                "fontColor": {
+                  "dark": "#F5A623"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(avg_severity)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-city",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d7dc787b",
+                  "fields": [
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Top City"
+              },
+              "style": {
+                "fontColor": {
+                  "dark": "#E74C3C"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "city"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-violation",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1e51db6a",
+                  "fields": [
+                    {
+                      "name": "violation_type",
+                      "expression": "`violation_type`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Top Violation"
+              },
+              "style": {
+                "fontColor": {
+                  "dark": "#E74C3C"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "violation_type"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "riskiest-road",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e7915513",
+                  "fields": [
+                    {
+                      "name": "road_type",
+                      "expression": "`road_type`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Riskiest Road"
+              },
+              "style": {
+                "fontColor": {
+                  "dark": "#F5A623"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "road_type"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "peak-hour",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "96147cb7",
+                  "fields": [
+                    {
+                      "name": "peak_hour",
+                      "expression": "`peak_hour`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Peak Hour"
+              },
+              "style": {
+                "fontColor": {
+                  "dark": "#2ECC71"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "peak_hour"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "accident-by-city",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c045c11f",
+                  "fields": [
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    },
+                    {
+                      "name": "accident_count",
+                      "expression": "`accident_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Accidents by City"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  }
+                ],
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "accident_count",
+                  "displayName": "Accident Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "city",
+                  "axis": {
+                    "hideLabels": false
+                  },
+                  "displayName": "City",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "city",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": 9,
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "Brampton",
+                        "color": "#F39C12"
+                      },
+                      {
+                        "value": "Mississauga",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "Burlington",
+                        "color": "#F5B041"
+                      },
+                      {
+                        "value": "Toronto",
+                        "color": "#F39C12"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "city-road-type-heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "85752d4a",
+                  "fields": [
+                    {
+                      "name": "accident_count",
+                      "expression": "`accident_count`"
+                    },
+                    {
+                      "name": "road_type",
+                      "expression": "`road_type`"
+                    },
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "City × Road Type Heatmap",
+                "showDescription": false
+              },
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "road_type",
+                  "displayName": "Road Type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "city",
+                  "displayName": "City",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "accident_count",
+                  "legend": {
+                    "hide": true
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    },
+                    "negativeSign": "accounting"
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": 2,
+                        "color": "#F8C471"
+                      },
+                      {
+                        "value": 5,
+                        "color": "#F5B041"
+                      },
+                      {
+                        "value": 9,
+                        "color": "#F39C12"
+                      },
+                      {
+                        "value": 11,
+                        "color": "#E67E22"
+                      },
+                      {
+                        "value": 12,
+                        "color": "#E74C3C"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "text": {
+                    "fieldName": "accident_count",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 4,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "accidents-by",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5ac7ca14",
+                  "fields": [
+                    {
+                      "name": "road_type",
+                      "expression": "`road_type`"
+                    },
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    },
+                    {
+                      "name": "accident_count",
+                      "expression": "`accident_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Accidents by City and Road Type"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "city",
+                  "axis": {
+                    "labelAngle": 45
+                  },
+                  "displayName": "City",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "accident_count",
+                  "axis": {
+                    "hideTitle": true,
+                    "hideGrid": true,
+                    "hideLabels": true
+                  },
+                  "displayName": "Accident Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "road_type",
+                  "legend": {
+                    "hideTitle": true
+                  },
+                  "displayName": "Road Type",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "Highway",
+                        "Urban",
+                        "Rural"
+                      ]
+                    },
+                    "mappings": [
+                      {
+                        "value": "Highway",
+                        "color": "#E74C3C"
+                      },
+                      {
+                        "value": "Urban",
+                        "color": "#F39C12"
+                      },
+                      {
+                        "value": "Rural",
+                        "color": "#F8C471"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 4,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "average-severity-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "99cfe64c",
+                  "fields": [
+                    {
+                      "name": "condition",
+                      "expression": "`condition`"
+                    },
+                    {
+                      "name": "avg_severity",
+                      "expression": "`avg_severity`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Average Severity by Weather"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "avg_severity",
+                  "axis": {
+                    "hideGrid": true,
+                    "hideTitle": true,
+                    "hideLabels": false,
+                    "labelAngle": 0
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    },
+                    "significantFigures": {
+                      "type": "exact",
+                      "figures": 3
+                    }
+                  },
+                  "scale": {
+                    "type": "quantitative",
+                    "reverse": false
+                  }
+                },
+                "y": {
+                  "fieldName": "condition",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "condition",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Clear",
+                        "color": "#4DA3FF"
+                      },
+                      {
+                        "value": "Snow",
+                        "color": "#EAF4FF"
+                      },
+                      {
+                        "value": "Fog",
+                        "color": "#B7D9FF"
+                      },
+                      {
+                        "value": "Rain",
+                        "color": "#85C1FF"
+                      }
+                    ],
+                    "sort": {
+                      "by": "natural-order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "accidents-by-hour-of-day-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "649e69c0",
+                  "fields": [
+                    {
+                      "name": "hour_risk",
+                      "expression": "`hour_risk`"
+                    },
+                    {
+                      "name": "accident_hour",
+                      "expression": "`accident_hour`"
+                    },
+                    {
+                      "name": "accident_count",
+                      "expression": "`accident_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Accidents by Hour of Day"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "accident_hour",
+                  "axis": {
+                    "hideGrid": true,
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "labelAngle": 45
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "natural-order"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "accident_count",
+                  "axis": {
+                    "hideTitle": false,
+                    "hideGrid": true,
+                    "hideLabels": true
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "hour_risk",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Peak Hour",
+                        "color": "#E74C3C"
+                      },
+                      {
+                        "value": "Medium Activity",
+                        "color": "#F39C12"
+                      },
+                      {
+                        "value": "Normal Hour",
+                        "color": "#F8C471"
+                      },
+                      {
+                        "value": "Calm Hour",
+                        "color": "#A9DFBF"
+                      },
+                      {
+                        "value": "High Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      }
+                    ],
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "violation-type-distribution",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f6c10ce6",
+                  "fields": [
+                    {
+                      "name": "countdistinct(violation_type)",
+                      "expression": "COUNT(DISTINCT `violation_type`)"
+                    },
+                    {
+                      "name": "violation_type",
+                      "expression": "`violation_type`"
+                    },
+                    {
+                      "name": "accident_count",
+                      "expression": "`accident_count`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "mark": {
+                "colors": [
+                  "#E74C3C",
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Violation Type Distribution"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "countdistinct(violation_type)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    },
+                    "hideGroupSeparator": false
+                  },
+                  "axis": {
+                    "hideTitle": true
+                  }
+                },
+                "color": {
+                  "fieldName": "violation_type",
+                  "legend": {
+                    "hide": false,
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Dui",
+                        "color": "#E74C3C"
+                      },
+                      {
+                        "value": "Signal Jump",
+                        "color": "#2ECC71"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": false
+                },
+                "extra": [
+                  {
+                    "fieldName": "accident_count"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 14,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "accident-by-age-group-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a73d89ea",
+                  "fields": [
+                    {
+                      "name": "age_group",
+                      "expression": "`age_group`"
+                    },
+                    {
+                      "name": "total_accidents",
+                      "expression": "`total_accidents`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Accident by Age Group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "total_accidents",
+                  "axis": {
+                    "title": "Total Accidents"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "age_group",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "age_group",
+                  "legend": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "natural-order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 14,
+            "width": 6,
+            "height": 4
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#FAFAFB",
+        "dark": "#1F272D"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "fontColor": {
+        "light": "#11171C",
+        "dark": "#4DA3FF"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#8ACAFF"
+      },
+      "visualizationColors": [
+        "#4DA3FF",
+        "#F5A623",
+        "#E74C3C",
+        "#2ECC71",
+        "#F8C471"
+      ],
+      "widgetHeaderAlignment": "LEFT"
+    },
+    "applyModeEnabled": false
+  }
+}
