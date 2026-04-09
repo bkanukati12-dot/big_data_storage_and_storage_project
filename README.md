@@ -110,3 +110,9 @@ The dashboard includes:
 - **Delta Tables**
 - **Medallion Architecture**
 - **Databricks Dashboard Visualization**
+
+##Team Members
+-**Karthika**
+-**Neyaz**
+-**Anamika**
+-**Bharath**
